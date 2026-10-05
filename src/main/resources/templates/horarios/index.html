@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Horarios de Entrenadores</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<div class="container">
+    <div class="text-end mb-4">
+        <th:block th:if="${#authentication.principal.rol == 'admin'}">
+        <a th:href="@{/horarios/add}" class="btn btn-primary">
+            <i class="bi bi-clock-history me-1"></i> Asignar Nuevo Horario
+        </a>
+        </th:block>
+        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'entrenador')}">
+        <a th:href="@{/horarios/historial}" class="btn btn-outline-info">
+            <i class="bi bi-journal-text me-1"></i> Ver Historial
+        </a>
+        </th:block>
+    </div>
+
+    <div class="card p-3 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead style="background: rgba(15, 52, 96, 0.6);">
+                    <tr class="text-info">
+                        <th class="py-3">Entrenador</th>
+                        <th class="py-3">Día</th>
+                        <th class="py-3">Hora Inicio</th>
+                        <th class="py-3">Hora Fin</th>
+                        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'entrenador')}">
+                        <th class="py-3">Usuarios Inscritos</th>
+                        </th:block>
+                        <th class="py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <th:block th:each="horario : ${horarios}">
+                    <tr>
+                        <td class="fw-bold">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%;" th:text="${#strings.charAt(horario.trainer.nombre, 0).toUpperCase()}"></div>
+                                <th:block th:text="${horario.trainer.nombre}"></th:block>
+                            </div>
+                        </td>
+                        <td><span class="badge rounded-pill bg-info text-dark" th:text="${horario.diaSemana}"></span></td>
+                        <td><i class="bi bi-clock me-1 text-muted"></i><th:block th:text="${horario.horaInicio}"></th:block></td>
+                        <td><i class="bi bi-clock-fill me-1 text-muted"></i><th:block th:text="${horario.horaFin}"></th:block></td>
+                        
+                        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'entrenador')}">
+                        <td>
+                            <th:block th:if="${not #lists.isEmpty(horario.usuariosInscritos)}">
+                                <div class="d-flex flex-wrap gap-1">
+                                    <th:block th:each="u : ${horario.usuariosInscritos}">
+                                        <span class="badge bg-light text-dark border" th:title="${u.email}" th:text="${u.nombre}"></span>
+                                    </th:block>
+                                </div>
+                            </th:block><th:block th:else>
+                                <span class="text-muted small italic">Nadie inscrito</span>
+                            </th:block>
+                        </td>
+                        </th:block>
+
+                        <td class="text-center">
+                            <th:block th:if="${#authentication.principal.rol == 'admin'}">
+                            <a th:href="@{/horarios/edit/{id}(id=${horario.idHorario})}" class="btn btn-sm btn-outline-info me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form th:action="@{/horarios/delete/{id}(id=${horario.idHorario})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este horario?');">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            </th:block>
+
+                            <th:block th:if="${#authentication.principal.rol == 'usuario'}">
+                                <th:block th:if="${#authentication.principal in horario.usuariosInscritos}">
+                                <a th:href="@{/horarios/deseleccionar/{id}(id=${horario.idHorario})}" class="btn btn-sm btn-warning">
+                                    <i class="bi bi-x-circle me-1"></i> Deseleccionar
+                                </a>
+                                </th:block><th:block th:else>
+                                <a th:href="@{/horarios/seleccionar/{id}(id=${horario.idHorario})}" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle me-1"></i> Seleccionar
+                                </a>
+                                </th:block>
+                            </th:block>
+                            <th:block th:if="${#authentication.principal.rol == 'entrenador' and horario.idUser == #authentication.principal.idUser}">
+                                <th:block th:if="${asistenciaActiva != null}">
+                                    <th:block th:if="${asistenciaActiva.idHorario == horario.idHorario}">
+                                    <a th:href="@{/horarios/asistencia/marcar-salida/{id_asistencia}(id_asistencia=${asistencia_activa.idAsistencia})}" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-box-arrow-right me-1"></i> Marcar Salida
+                                    </a>
+                                    </th:block><th:block th:else>
+                                    <span class="badge bg-secondary">Otra sesión activa</span>
+                                    </th:block>
+                                </th:block><th:block th:else>
+                                <a th:href="@{/horarios/asistencia/marcar-entrada/{id_horario}(id_horario=${horario.idHorario})}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Marcar Entrada
+                                </a>
+                                </th:block>
+                            </th:block>
+                        </td>
+                    </tr>
+                    </th:block><th:block th:if="${#lists.isEmpty(horarios)}">
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-calendar-x d-block mb-2" style="font-size: 2rem;"></i>
+                            No hay horarios asignados aún.
+                        </td>
+                    </tr>
+                    </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+  </div>
+</body>
+
+</html>

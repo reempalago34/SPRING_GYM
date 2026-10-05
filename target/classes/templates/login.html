@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{login-base :: loginLayout(~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fit Nation - Iniciar Sesión</title>
+</head>
+
+<body>
+  <div id="contenido" th:fragment="contenido">
+
+    <div class="card shadow-lg border-0 rounded-lg">
+      <div class="card-header text-white text-center">
+        <i class="bi bi-dumbbell display-4 mb-3 d-block"></i>
+        <h1 class="mb-2"> Fit Nation </h1>
+        <p class="small mb-0">Inicia sesión para comenzar a cuidarte mejor</p>
+      </div>
+      <div class="card-body p-4">
+
+        <!-- Error de autenticación (equivalente al flash 'danger' de Flask) -->
+        <div class="alert alert-danger alert-dismissible fade show" role="alert"
+             th:if="${param.error != null}">
+          Usuario o contraseña incorrectos.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Sesión cerrada (equivale a ?next=/login tras logout) -->
+        <div class="alert alert-info alert-dismissible fade show" role="alert"
+             th:if="${param.logout != null}">
+          Has cerrado la sesión correctamente.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Spring Security procesa el POST en /login -->
+        <form th:action="@{/login}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+          <div class="form-group mb-3">
+            <label for="nameUser" class="form-label"><i class="bi bi-person"></i> Usuario</label>
+            <input type="text" name="nameUser" id="nameUser" class="form-control"
+                   placeholder="Ingresa tu usuario" required autofocus>
+          </div>
+
+          <div class="form-group mb-4">
+            <label for="passwordUser" class="form-label"><i class="bi bi-lock"></i> Contraseña</label>
+            <div class="input-group">
+              <input type="password" name="passwordUser" id="passwordUser" class="form-control"
+                     placeholder="Ingresa tu contraseña" required>
+              <button class="btn toggle-password" type="button" data-target="passwordUser">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center mt-3">
+          <a th:href="@{/forgot-password}" class="text-decoration-none small">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+
+        <hr class="my-4">
+        <div class="text-center">
+          <p class="text-muted small mb-3">¿No tienes cuenta?</p>
+          <a th:href="@{/User/add}" class="btn btn-secondary btn-block w-100">
+            <i class="bi bi-person-plus me-2"></i>Crear Cuenta
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+</html>

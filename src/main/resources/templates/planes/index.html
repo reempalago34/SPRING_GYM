@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Listado de Planes</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<div class="container">
+    <div class="text-end mb-4">
+        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'entrenador' or #authentication.principal.rol == 'recepcionista')}">
+        <a th:href="@{/planes/add}" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i> Crear
+            Plan</a>
+        </th:block>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <th:block th:each="plan : ${planes}">
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-dark text-white fw-bold" th:text="${plan.nombrePlan}"></div>
+                <div class="card-body">
+                    <h3 class="card-title text-success">$<th:block th:text="${plan.precio}"></th:block></h3>
+                    <p class="card-text text-muted">Duración: <th:block th:text="${plan.duracionMeses}"></th:block> meses</p>
+                </div>
+                <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'entrenador' or #authentication.principal.rol == 'recepcionista')}">
+                <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between">
+                    <a th:href="@{/planes/edit/{id}(id=${plan.idPlan})}"
+                        class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Editar</a>
+                    <form th:action="@{/planes/delete/{id}(id=${plan.idPlan})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('¿Eliminar este plan?');"><i class="bi bi-trash"></i></button>
+                    </form>
+                </div>
+                </th:block>
+            </div>
+        </div>
+        </th:block><th:block th:if="${#lists.isEmpty(planes)}">
+        <div class="col-12">
+            <p class="text-center text-muted">No hay planes disponibles por ahora.</p>
+        </div>
+        </th:block>
+    </div>
+</div>
+
+  </div>
+</body>
+
+</html>

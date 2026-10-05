@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Historial de Pagos</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<div class="container">
+    <div class="text-end mb-4">
+        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'recepcionista')}">
+        <a th:href="@{/pagos/add}" class="btn btn-success">
+            <i class="bi bi-plus-circle me-1"></i> Registrar Nuevo Pago
+        </a>
+        </th:block>
+    </div>
+
+    <div class="card p-3 shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead style="background: rgba(15, 52, 96, 0.6);">
+                    <tr class="text-info">
+                        <th class="py-3">Fecha</th>
+                        <th class="py-3">Cliente</th>
+                        <th class="py-3">Monto</th>
+                        <th class="py-3">Método</th>
+                        <th class="py-3">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <th:block th:each="pago : ${pagos}">
+                    <tr>
+                        <td th:text="${#temporals.format(pago.fecha, 'dd/MM/yyyy hh:mm a')}"></td>
+                        <td class="fw-bold text-white" th:text="${pago.cliente.nombre}"></td>
+                        <td class="text-success fw-bold">$<th:block th:text="${#numbers.formatDecimal(pago.monto, 1, 'POINT', 2, 'COMMA')}"></th:block></td>
+                        <td><span class="badge bg-secondary" th:text="${pago.metodoPago}"></span></td>
+                        <td><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Completado</span></td>
+                    </tr>
+                    </th:block><th:block th:if="${#lists.isEmpty(pagos)}">
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <i class="bi bi-cash-stack d-block mb-2" style="font-size: 2rem;"></i>
+                            No se han encontrado registros de pagos.
+                        </td>
+                    </tr>
+                    </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+  </div>
+</body>
+
+</html>

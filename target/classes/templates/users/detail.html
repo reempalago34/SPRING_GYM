@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Usuario <th:block th:text="${user.nameUser}"></th:block></th:block>
+  <div id="contenido" th:fragment="contenido">
+
+    <div class="container">
+        <table class="table table-bordered">
+            <tr>
+                <th>ID</th>
+                <td th:text="${user.idUser}"></td>
+            </tr>
+            <tr>
+                <th>Nombre</th>
+                <td th:text="${user.nameUser}"></td>
+            </tr>
+            <tr>
+                <th>Teléfono</th>
+                <td th:text="${(user.telefono ?: '-')}"></td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td th:text="${(user.emailUser ?: '-')}"></td>
+            </tr>
+            <tr>
+                <th>Creado en</th>
+                <td th:text="${(user.creadoEnUser != null ? #temporals.format(user.creadoEnUser, 'dd/MM/yyyy') : '-')}"></td>
+            </tr>
+        </table>
+        <div class="d-flex justify-content-between">
+            <a th:href="@{/User/edit/{id}(id=${user.idUser})}" class="btn btn-primary btn-sm mb-1">
+                <i class="bi bi-pencil-square"></i>
+            </a>
+            <form th:action="@{/User/delete/{id}(id=${user.idUser})}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-danger btn-sm mb-1" onclick="return confirm('¿Eliminar este usuario?')">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+  </div>
+</body>
+
+</html>

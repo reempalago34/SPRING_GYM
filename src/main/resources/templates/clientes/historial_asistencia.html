@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Historial de Asistencia del Gimnasio</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-info"><i class="bi bi-person-check me-2"></i> Registro de Entradas y Salidas</h2>
+        <a th:href="@{/dashboard}" class="btn btn-outline-light">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Dashboard
+        </a>
+    </div>
+
+    <div class="card p-3 shadow-sm border-0 bg-dark text-white" style="background: rgba(15, 52, 96, 0.4) !important; backdrop-filter: blur(10px);">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle text-white">
+                <thead style="background: rgba(15, 52, 96, 0.8);">
+                    <tr class="text-info">
+                        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'recepcionista')}">
+                        <th class="py-3">Cliente</th>
+                        </th:block>
+                        <th class="py-3">Fecha</th>
+                        <th class="py-3">Entrada</th>
+                        <th class="py-3">Salida</th>
+                        <th class="py-3">Tiempo Total</th>
+                        <th class="py-3 text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <th:block th:each="asistencia : ${asistencias}">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'recepcionista')}">
+                        <td class="fw-bold">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%;" th:text="${#strings.charAt(asistencia.usuario.nombre, 0).toUpperCase()}"></div>
+                                <th:block th:text="${asistencia.usuario.nombre}"></th:block>
+                            </div>
+                        </td>
+                        </th:block>
+                        <td th:text="${#temporals.format(asistencia.fecha, 'dd/MM/yyyy')}"></td>
+                        <td class="text-success"><i class="bi bi-door-open me-1"></i><th:block th:text="${#temporals.format(asistencia.horaEntrada, 'hh:mm:ss a')}"></th:block></td>
+                        <td class="text-warning">
+                            <th:block th:if="${asistencia.horaSalida != null}">
+                                <i class="bi bi-door-closed me-1"></i><th:block th:text="${#temporals.format(asistencia.horaSalida, 'hh:mm:ss a')}"></th:block>
+                            </th:block><th:block th:else>
+                                <span class="badge bg-danger pulse-animation">En el gimnasio</span>
+                            </th:block>
+                        </td>
+                        <td>
+                            <th:block th:if="${asistencia.horaSalida != null}" th:with="duracion=${T(java.time.Duration).between(asistencia.horaEntrada, asistencia.horaSalida)}">
+                                <th:block th:text="${(duracion.toHours())}"></th:block>h <th:block th:text="${(duracion.toMinutes() % 60)}"></th:block>m
+                            </th:block><th:block th:else>
+                                --
+                            </th:block>
+                        </td>
+                        <td class="text-center">
+                            <th:block th:if="${asistencia.horaSalida != null}">
+                                <span class="text-success"><i class="bi bi-check-all"></i> Finalizado</span>
+                            </th:block><th:block th:else>
+                                <span class="text-info"><i class="bi bi-geo-alt-fill"></i> Presente</span>
+                            </th:block>
+                        </td>
+                    </tr>
+                    </th:block><th:block th:if="${#lists.isEmpty(asistencias)}">
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-5">
+                            <i class="bi bi-card-list d-block mb-2" style="font-size: 2rem;"></i>
+                            No hay registros de asistencia para mostrar.
+                        </td>
+                    </tr>
+                    </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+</style>
+
+  </div>
+</body>
+
+</html>

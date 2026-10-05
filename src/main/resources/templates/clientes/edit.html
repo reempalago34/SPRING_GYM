@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{form-base :: formLayout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Editar Cliente</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<form th:action="@{/clientes/edit/{id}(id=${id})}" method="POST"
+    <div class="form-group mb-3">
+        <label class="form-label">Nombre Completo</label>
+        <input type="text" name="nombre" class="form-control" th:value="${cliente.nombre}" required>
+    </div>
+    <div class="form-group mb-3">
+        <label class="form-label">Edad</label>
+        <input type="number" name="edad" class="form-control" th:value="${cliente.edad}" required>
+    </div>
+    <div class="form-group mb-4">
+        <label class="form-label">Teléfono</label>
+        <input type="text" name="telefono" class="form-control" th:value="${cliente.telefono}">
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i> Actualizar Cliente</button>
+        <a th:href="@{/clientes}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+  </div>
+</body>
+
+</html>

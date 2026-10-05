@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Listado de Inscripciones</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<div class="container">
+    <div class="text-end mb-4">
+        <th:block th:if="${not hasActiveInscription or (#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'entrenador' or #authentication.principal.rol == 'recepcionista')}">
+        <a th:href="@{/inscripciones/add}" class="btn btn-primary"><i
+                class="bi bi-journal-plus me-1"></i> Nueva Inscripción</a>
+        </th:block>
+    </div>
+
+    <div class="card p-3 shadow-sm border-0">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Cliente</th>
+                    <th>Plan Efectuado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="inscripcion : ${inscripciones}">
+                <tr>
+                    <td th:text="${inscripcion.idInscripcion}"></td>
+                    <td th:text="${(inscripcion.fecha != null ? #temporals.format(inscripcion.fecha, 'yyyy-MM-dd hh:mm a') : 'N/A')}"></td>
+                    <td class="fw-bold text-primary" th:text="${inscripcion.cliente.nombre}"></td>
+                    <td><span class="badge bg-success" th:text="${inscripcion.plan.nombrePlan}"></span></td>
+                    <td>
+                        <th:block th:if="${(#authentication.principal.rol == 'admin' or #authentication.principal.rol == 'entrenador' or #authentication.principal.rol == 'recepcionista') or (#authentication.principal.rol == 'usuario' and inscripcion.cliente.nombre == #authentication.principal.nombre)}">
+                        <form th:action="@{/inscripciones/delete/{id}(id=${inscripcion.idInscripcion})}"
+                            method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('¿Seguro que deseas cancelar esta inscripción?');"><i
+                                    class="bi bi-x-circle me-1"></i> Cancelar</button>
+                        </form>
+                        </th:block><th:block th:else>
+                        <span class="text-muted small">Sin acciones</span>
+                        </th:block>
+                    </td>
+                </tr>
+                </th:block><th:block th:if="${#lists.isEmpty(inscripciones)}">
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Aún no hay inscripciones activas.</td>
+                </tr>
+                </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+  </div>
+</body>
+
+</html>

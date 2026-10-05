@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <!--/* En Flask esta página no define {% block titulo_pagina %}: el encabezado
+       de la tarjeta sale vacío. Se conserva igual para replicar 1:1. */-->
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina"></th:block>
+
+  <div id="contenido" th:fragment="contenido">
+
+    <div class="hero-card p-4 p-md-5 mb-5 bg-primary text-white rounded-4 shadow-sm"
+         style="background: linear-gradient(135deg, #0f3460 0%, #1a447a 100%);">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-4">
+        <div>
+          <h1 class="display-6 fw-bold">¡Hola,
+            <span sec:authentication="principal.nombre">Usuario</span>!</h1>
+          <p class="lead text-white-50">Bienvenido a Fit Nation.</p>
+        </div>
+        <div class="text-md-end" sec:authorize="hasAnyRole('USUARIO','ADMIN','RECEPCIONISTA')">
+          <div th:if="${asistenciaCliente != null}" class="d-flex align-items-center gap-3">
+            <div class="text-end">
+              <small class="d-block text-white-50">Llegaste a las:
+                <span th:text="${asistenciaCliente.horaEntrada}">00:00</span>
+              </small>
+              <span class="badge bg-success border border-white-50">Sesión en curso</span>
+            </div>
+            <a th:href="@{'/clientes/asistencia/marcar-salida/' + ${asistenciaCliente.idAsistencia}}"
+               class="btn btn-danger px-4 py-2 rounded-pill shadow-sm">
+              <i class="bi bi-door-closed-fill me-2"></i>Marcar Salida
+            </a>
+          </div>
+          <a th:if="${asistenciaCliente == null}"
+             th:href="@{/clientes/asistencia/marcar-entrada}"
+             class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-door-open-fill me-2"></i>Marcar Entrada Gym
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+      <div class="col" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
+        <div class="card h-100 border-0 shadow-sm text-center py-4">
+          <div class="card-body">
+            <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
+            <h2 class="display-4 fw-bold mt-3" th:text="${totalClientes}">0</h2>
+            <h5 class="text-muted">Clientes Registrados</h5>
+          </div>
+        </div>
+      </div>
+      <div class="col" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
+        <div class="card h-100 border-0 shadow-sm text-center py-4">
+          <div class="card-body">
+            <i class="bi bi-card-checklist text-success" style="font-size: 3rem;"></i>
+            <h2 class="display-4 fw-bold mt-3" th:text="${totalPlanes}">0</h2>
+            <h5 class="text-muted">Planes Activos</h5>
+          </div>
+        </div>
+      </div>
+      <div class="col" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
+        <div class="card h-100 border-0 shadow-sm text-center py-4">
+          <div class="card-body">
+            <i class="bi bi-journal-check text-warning" style="font-size: 3rem;"></i>
+            <h2 class="display-4 fw-bold mt-3" th:text="${totalInscripciones}">0</h2>
+            <h5 class="text-muted">Inscripciones Totales</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-5 mb-4"
+         th:if="${not #lists.isEmpty(misHorarios) or #authentication.principal.rol == 'usuario' or #authentication.principal.rol == 'entrenador'}">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header py-3 d-flex justify-content-between align-items-center border-bottom-0">
+            <h4 class="mb-0 fw-bold">
+              <th:block th:if="${#authentication.principal.rol == 'entrenador'}">
+                <i class="bi bi-calendar3 me-2 text-info"></i>Mis Alumnos y Horarios
+              </th:block>
+              <th:block th:unless="${#authentication.principal.rol == 'entrenador'}">
+                <i class="bi bi-calendar-check me-2 text-success"></i>Mis Horarios de Entrenamiento
+              </th:block>
+            </h4>
+            <a th:href="@{/horarios}" class="btn btn-sm btn-outline-info">
+              <th:block th:if="${#authentication.principal.rol == 'usuario'}">Gestionar Horarios</th:block>
+              <th:block th:unless="${#authentication.principal.rol == 'usuario'}">Ver Todos</th:block>
+            </a>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr class="text-info">
+                    <th class="ps-4">Día</th>
+                    <th>Horario</th>
+                    <th>Entrenador</th>
+                    <th th:if="${#authentication.principal.rol == 'entrenador'}">Alumnos Inscritos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="h : ${misHorarios}">
+                    <td class="ps-4"><span class="badge rounded-pill bg-primary" th:text="${h.diaSemana}">Lunes</span></td>
+                    <td><i class="bi bi-clock me-1 opacity-50"></i>
+                      <span th:text="${h.horaInicio}">00:00</span> -
+                      <span th:text="${h.horaFin}">00:00</span></td>
+                    <td><span class="fw-bold" th:text="${h.trainer.nombre}">Entrenador</span></td>
+                    <td th:if="${#authentication.principal.rol == 'entrenador'}">
+                      <th:block th:if="${not #lists.isEmpty(h.usuariosInscritos)}">
+                        <span class="badge bg-light text-dark border" th:each="u : ${h.usuariosInscritos}"
+                              th:text="${u.nombre}">Alumno</span>
+                      </th:block>
+                      <span th:if="${#lists.isEmpty(h.usuariosInscritos)}"
+                            class="text-muted small">Sin alumnos</span>
+                    </td>
+                  </tr>
+                  <tr th:if="${#lists.isEmpty(misHorarios)}">
+                    <td colspan="4" class="text-center py-5 text-muted">
+                      <i class="bi bi-calendar-x d-block mb-2" style="font-size: 2rem;"></i>
+                      No tienes horarios
+                      <th:block th:if="${#authentication.principal.rol == 'entrenador'}">asignados</th:block>
+                      <th:block th:unless="${#authentication.principal.rol == 'entrenador'}">seleccionados</th:block>
+                      todavía.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
+      <div class="card-header py-3 d-flex justify-content-between align-items-center border-bottom-0">
+        <h4 class="mb-0 fw-bold">Últimas Inscripciones</h4>
+        <a th:href="@{/inscripciones}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th class="ps-4">Fecha</th>
+                <th>Cliente</th>
+                <th>Plan Seleccionado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="inscripcion : ${inscripciones}">
+                <td class="ps-4 text-muted"
+                    th:text="${inscripcion.fecha != null ? inscripcion.fecha : 'N/A'}">N/A</td>
+                <td class="fw-bold" th:text="${inscripcion.cliente.nombre}">Cliente</td>
+                <td><span class="badge bg-primary" th:text="${inscripcion.plan.nombrePlan}">Plan</span></td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(inscripciones)}">
+                <td colspan="3" class="text-center py-4 text-muted">No se han registrado inscripciones aún.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{form-base :: formLayout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Crear Cuenta</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<form th:action="@{/User/add}" method="post" class="needs-validation" novalidate>
+    <div class="form-group mb-3">
+        <label for="nameUser" class="form-label"><i class="bi bi-person me-1"></i>Nombre de Usuario</label>
+        <input type="text" id="nameUser" name="nameUser" placeholder="Ej. JuanPerez" required class="form-control">
+        <div class="invalid-feedback">
+            Por favor, ingrese un nombre de usuario.
+        </div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="telefonoUser" class="form-label"><i class="bi bi-telephone me-1"></i>Teléfono</label>
+        <input type="text" id="telefonoUser" name="telefonoUser" placeholder="Ej. 123456789" class="form-control">
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="emailUser" class="form-label"><i class="bi bi-envelope me-1"></i>Email</label>
+        <input type="email" id="emailUser" name="emailUser" placeholder="tu@correo.com" required class="form-control">
+        <div class="invalid-feedback">
+            Por favor, ingrese un correo válido.
+        </div>
+    </div>
+    
+    <div class="form-group mb-3">
+        <label for="passwordUser" class="form-label"><i class="bi bi-lock me-1"></i>Contraseña</label>
+        <div class="input-group">
+            <input type="password" id="passwordUser" name="passwordUser" placeholder="Mínimo 6 caracteres" required class="form-control">
+            <button class="btn toggle-password" type="button" data-target="passwordUser">
+                <i class="bi bi-eye"></i>
+            </button>
+            <div class="invalid-feedback">
+                Por favor, ingrese una contraseña.
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="confirmPassword" class="form-label"><i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña</label>
+        <div class="input-group">
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Repite tu contraseña" required class="form-control">
+            <button class="btn toggle-password" type="button" data-target="confirmPassword">
+                <i class="bi bi-eye"></i>
+            </button>
+            <div class="invalid-feedback">
+                Por favor, confirme su contraseña.
+            </div>
+        </div>
+    </div>
+
+    <th:block th:if="${#authentication.isAuthenticated and #authentication.principal.rol == 'admin'}">
+    <div class="form-group mb-4">
+        <label for="rol" class="form-label"><i class="bi bi-shield-lock me-1"></i>Rol del Sistema (Solo Admin)</label>
+        <select name="rol" id="rol" class="form-select border-0 px-3 py-2 bg-light">
+            <option value="usuario" selected>Usuario</option>
+            <option value="entrenador">Entrenador</option>
+            <option value="recepcionista">Recepcionista</option>
+            <option value="admin">Administrador</option>
+        </select>
+    </div>
+    </th:block>
+    
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-person-plus-fill me-2"></i>Crear Cuenta</button>
+        <th:block th:if="${not #authentication.isAuthenticated}">
+        <a th:href="@{/login}" class="btn btn-secondary"><i class="bi bi-arrow-left me-1"></i>Volver al Inicio</a>
+        </th:block><th:block th:else>
+        <a th:href="@{/User}" class="btn btn-secondary">Cancelar</a>
+        </th:block>
+    </div>
+</form>
+
+<script>
+    // Validación de formulario
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.querySelectorAll('.needs-validation');
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+
+  </div>
+</body>
+
+</html>

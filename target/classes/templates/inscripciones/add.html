@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{form-base :: formLayout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Nueva Inscripción</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+<form th:action="@{/inscripciones/add}" method="POST"
+    <h5 class="mb-3 text-primary border-bottom pb-2">1. Datos Personales</h5>
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Nombre Completo</label>
+            <th:block th:if="${#authentication.principal.rol == 'usuario'}">
+                <input type="text" class="form-control bg-light" th:value="${#authentication.principal.nombre}" readonly>
+            </th:block><th:block th:else>
+                <input type="text" name="nombre" class="form-control" required placeholder="Ej. Carlos Torres">
+            </th:block>
+        </div>
+        <div class="col-md-12 mb-3">
+            <label class="form-label">Correo Electrónico</label>
+            <th:block th:if="${#authentication.principal.rol == 'usuario'}">
+                <input type="email" name="email" class="form-control bg-light" th:value="${(#authentication.principal.email ?: '')}" readonly>
+            </th:block><th:block th:else>
+                <input type="email" name="email" class="form-control" placeholder="Ej. correo@ejemplo.com" required>
+            </th:block>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Edad</label>
+            <input type="number" name="edad" class="form-control" required placeholder="Ej. 25">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Teléfono</label>
+            <th:block th:if="${#authentication.principal.rol == 'usuario'}">
+                <input type="text" name="telefono" class="form-control" th:value="${(#authentication.principal.telefono ?: '')}" placeholder="Ej. 3001234567" required>
+            </th:block><th:block th:else>
+                <input type="text" name="telefono" class="form-control" placeholder="Ej. 3001234567" required>
+            </th:block>
+        </div>
+    </div>
+
+    <h5 class="mb-3 text-primary border-bottom pb-2 mt-3">2. Selección de Plan y Horario</h5>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Seleccionar Plan</label>
+            <select name="idPlan" class="form-control form-select" required>
+                <option value="" disabled selected>-- Elija un plan activo --</option>
+                <th:block th:each="plan : ${planes}">
+                 <option th:value="${plan.idPlan}"><th:block th:text="${plan.nombrePlan}"></th:block> - $<th:block th:text="${plan.precio}"></th:block></option>
+                </th:block>
+            </select>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Seleccionar Horario y Entrenador</label>
+            <select name="idHorario" class="form-control form-select" required>
+                <option value="" disabled selected>-- Elija su turno --</option>
+                <th:block th:each="horario : ${horarios}">
+                 <option th:value="${horario.idHorario}"><th:block th:text="${horario.diaSemana}"></th:block>: <th:block th:text="${horario.horaInicio}"></th:block> - <th:block th:text="${horario.horaFin}"></th:block> (Prof. <th:block th:text="${horario.trainer.nombre}"></th:block>)</option>
+                </th:block>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-check mb-4 mt-3">
+        <input class="form-check-input" type="checkbox" name="terminos" value="1" id="terminos" required>
+        <label class="form-check-label text-muted" for="terminos">
+            Acepto los términos y condiciones de inscripción del gimnasio.
+        </label>
+    </div>
+    <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i> Confirmar Inscripción</button>
+        <a th:href="@{/inscripciones}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+  </div>
+</body>
+
+</html>

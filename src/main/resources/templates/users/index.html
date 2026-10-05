@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{base :: layout(~{:: #titulo-pagina}, ~{:: #contenido})}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Fit Nation</title>
+</head>
+
+<body>
+  <th:block id="titulo-pagina" th:fragment="titulo-pagina">Lista de Usuarios</th:block>
+  <div id="contenido" th:fragment="contenido">
+
+    
+    <div class="text-start">
+        <a th:href="@{/User/add}" class="btn btn-primary btn-sm mb-1">
+            <i class="bi bi-person-plus"></i> Agregar usuario
+        </a>
+    </div>
+    <div class="row mb-3 g-2 align-items-center">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Buscar por nombre o email...">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-filter"></i></span>
+                <select id="roleFilter" class="form-select border-start-0">
+                    <option value="">Todos los Roles</option>
+                    <option value="usuario">Usuario</option>
+
+                    <option value="entrenador">Entrenador</option>
+                    <option value="recepcionista">Recepcionista</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background: rgba(15, 52, 96, 0.6);">
+                    <tr class="text-info">
+                        <th class="py-3">ID</th>
+                        <th class="py-3">Nombre</th>
+                        <th class="py-3">Teléfono</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Rol</th>
+                        <th class="py-3">Creado en</th>
+                        <th class="py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    <th:block th:each="user : ${data}">
+                        <tr class="user-row"  th:attr="data-rol=${user.rol}">
+                            <td th:text="${user.idUser}"></td>
+                            <td class="fw-bold" th:text="${user.nameUser}"></td>
+                            <td th:text="${(user.telefono ?: '-')}"></td>
+                            <td th:text="${(user.emailUser ?: '-')}"></td>
+                            <td>
+                                <span class="badge" th:classappend="${user.rol == 'admin' ? 'bg-danger' : (user.rol == 'entrenador' ? 'bg-primary' : (user.rol == 'recepcionista' ? 'bg-info text-dark' : 'bg-secondary'))}" th:text="${#strings.capitalize(user.rol)}"></span>
+                            </td>
+                            <td>
+                                <th:block th:if="${user.creadoEnUser != null}">
+                                <th:block th:text="${#temporals.format(user.creadoEnUser, 'dd/MM/yyyy')}"></th:block>
+                                </th:block><th:block th:else>
+                                -
+                                </th:block>
+                            </td>
+                            
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a th:href="@{/User/detail/{id}(id=${user.idUser})}" class="btn btn-outline-success btn-sm" title="Detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <th:block th:if="${#authentication.principal.rol == 'admin' or #authentication.principal.idUser == user.idUser}">
+                                    <a th:href="@{/User/edit/{id}(id=${user.idUser})}" class="btn btn-outline-primary btn-sm" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form th:action="@{/User/delete/{id}(id=${user.idUser})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este usuario?')" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    </th:block>
+                                </div>
+                            </td>
+                        </tr>
+                    </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+        const rows = document.querySelectorAll('.user-row');
+
+        function filterTable() {
+            const searchValue = searchInput.value.toLowerCase();
+            const roleValue = roleFilter.value.toLowerCase();
+
+            rows.forEach(row => {
+                const userName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const userEmail = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
+                const userRole = row.getAttribute('data-rol').toLowerCase();
+
+                const matchesSearch = userName.includes(searchValue) || userEmail.includes(searchValue);
+                const matchesRole = roleValue === '' || userRole === roleValue;
+
+                if (matchesSearch && matchesRole) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('keyup', filterTable);
+        roleFilter.addEventListener('change', filterTable);
+    </script>
+
+  </div>
+</body>
+
+</html>
